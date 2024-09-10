@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhang.mypan.mapper.FileShareMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhang.mypan.entity.FileShare">
+        <id property="shareId" column="share_id" jdbcType="VARCHAR"/>
+        <result property="fileId" column="file_id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="vaildType" column="vaild_type" jdbcType="TINYINT"/>
+        <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
+        <result property="shareTime" column="share_time" jdbcType="TIMESTAMP"/>
+        <result property="code" column="code" jdbcType="VARCHAR"/>
+        <result property="showCount" column="show_count" jdbcType="INTEGER"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="fileCover" column="file_cover" jdbcType="VARCHAR"/>
+        <result property="folderType" column="folder_type" jdbcType="TINYINT"/>
+        <result property="fileCategory" column="file_category" jdbcType="TINYINT"/>
+        <result property="fileType" column="file_type" jdbcType="TINYINT"/>
+        <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+        <result property="lastUpdateTime" column="last_update_time" jdbcType="TIMESTAMP"/>
+        <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        share_id,file_id,user_id,
+        vaild_type,expire_time,share_time,
+        code,show_count
+    </sql>
+    <update id="updateByShareId">
+        update file_share
+        set show_count = show_count + 1
+        where share_id = #{shareId}
+    </update>
+    <select id="loadShareList" resultType="com.zhang.mypan.entity.FileShare">
+        SELECT
+        share_id,f.file_id,f.user_id,
+        vaild_type,expire_time,share_time,
+        code,show_count
+        <if test="showFileInfo!=null and showFileInfo">
+            ,f.file_name,f.file_cover,f.file_type,f.file_category,f.folder_type
+        </if>
+        FROM file_share s
+        <if test="showFileInfo!=null and showFileInfo">
+            join file_info f on s.file_id = f.file_id and f.user_id = #{userId}
+            <if test="fileNameFuzzy!=null">
+                and f.file_name like #{fileNameFuzzy}
+            </if>
+        </if>
+        order by share_time desc
+    </select>
+    <select id="selectByShareId" resultType="com.zhang.mypan.entity.FileShare">
+        select distinct(share_id),
+                       a.file_id,
+                       a.user_id,
+                       vaild_type,
+                       expire_time,
+                       share_time,
+                       code,
+                       show_count,
+                       file_name,
+                       file_cover,
+                       folder_type,
+                       file_category,
+                       file_type,
+                       file_size,
+                       c.nick_name
+        from file_share a
+                 join file_info b on a.file_id = b.file_id
+                 join user_info c on a.user_id = c.user_id
+        where share_id = #{shareId}
+    </select>
+    <select id="loadShareList1" resultType="com.zhang.mypan.entity.FileShare">
+        select
+        share_id,a.file_id,a.user_id,
+        vaild_type,expire_time,share_time,
+        code,show_count,file_name,file_cover,folder_type,file_category,file_type,file_size
+        from file_share a join file_info b on a.file_id = b.file_id
+        where b.file_pid =
+        <if test="filePid!=null">#{filePid}</if>
+        <if test="filePid==null">0</if>
+        and b.del_flag=2
+        and a.user_id = #{userId}
+        order by last_update_time desc
+        <if test="pageNo!=null and pageSize!=null">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+</mapper>

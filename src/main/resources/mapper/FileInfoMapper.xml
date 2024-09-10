@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhang.mypan.mapper.FileInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhang.mypan.entity.FileInfo">
+        <id property="fileId" column="file_id" jdbcType="VARCHAR"/>
+        <id property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="fileMd5" column="file_md5" jdbcType="VARCHAR"/>
+        <result property="filePid" column="file_pid" jdbcType="VARCHAR"/>
+        <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="fileCover" column="file_cover" jdbcType="VARCHAR"/>
+        <result property="filePath" column="file_path" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="lastUpdateTime" column="last_update_time" jdbcType="TIMESTAMP"/>
+        <result property="folderType" column="folder_type" jdbcType="TINYINT"/>
+        <result property="fileCategory" column="file_category" jdbcType="TINYINT"/>
+        <result property="fileType" column="file_type" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="recoveryTime" column="recovery_time" jdbcType="TIMESTAMP"/>
+        <result property="delFlag" column="del_flag" jdbcType="TINYINT"/>
+    </resultMap>
+    <resultMap id="ResultDtoMap" type="com.zhang.mypan.dto.FileDto">
+        <id property="fileId" column="file_id" jdbcType="VARCHAR"/>
+        <id property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="filePid" column="file_pid" jdbcType="VARCHAR"/>
+        <result property="fileSize" column="file_size" jdbcType="BIGINT"/>
+        <result property="fileName" column="file_name" jdbcType="VARCHAR"/>
+        <result property="fileCover" column="file_cover" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="lastUpdateTime" column="last_update_time" jdbcType="TIMESTAMP"/>
+        <result property="folderType" column="folder_type" jdbcType="TINYINT"/>
+        <result property="fileCategory" column="file_category" jdbcType="TINYINT"/>
+        <result property="fileType" column="file_type" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="delFlag" column="del_flag" jdbcType="TINYINT"/>
+        <result property="recoveryTime" column="recovery_time" jdbcType="TIMESTAMP"/>
+        <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        file_id,user_id,file_md5,
+        file_pid,file_size,file_name,
+        file_cover,file_path,create_time,
+        last_update_time,folder_type,file_category,
+        file_type,status,recovery_time,
+        del_flag
+    </sql>
+    <select id="loadFileList" resultType="com.zhang.mypan.dto.FileDto">
+        select file_id,f.user_id,file_md5,
+        file_pid,file_size,file_name,
+        file_cover,file_path,f.create_time,
+        last_update_time,folder_type,file_category,
+        file_type,f.status,recovery_time,
+        del_flag,u.nick_name
+        from file_info f join user_info u on u.user_id = f.user_id
+        where f.file_pid =
+        <if test="filePid!=null">#{filePid}</if>
+        <if test="filePid==null">0</if>
+        <if test="fileNameFuzzy!=null">
+            and f.file_name like CONCAT('%',#{fileNameFuzzy},'%')
+        </if>
+        and f.del_flag!=0
+        order by f.user_id asc,f.last_update_time desc
+    </select>
+    <update id="updateFileDelFlagBatch">
+        UPDATE file_info
+        <set>
+            <if test="bean.fileMd5!=null">
+                file_md5 = #{bean.fileMd5},
+            </if>
+            <if test="bean.filePid!=null">
+                file_Pid = #{bean.filePid},
+            </if>
+            <if test="bean.fileSize!=null">
+                file_size = #{bean.fileSize},
+            </if>
+            <if test="bean.fileName!=null">
+                file_name = #{bean.fileName},
+            </if>
+            <if test="bean.fileCover!=null">
+                file_cover = #{bean.fileCover},
+            </if>
+            <if test="bean.filePath!=null">
+                file_path = #{bean.filePath},
+            </if>
+            <if test="bean.createTime!=null">
+                create_time = #{bean.createTime},
+            </if>
+            <if test="bean.lastUpdateTime!=null">
+                last_update_time = #{bean.lastUpdateTime},
+            </if>
+            <if test="bean.fileType!=null">
+                file_type = #{bean.fileType},
+            </if>
+            <if test="bean.fileCategory!=null">
+                file_category = #{bean.fileCategory},
+            </if>
+            <if test="bean.folderType!=null">
+                folder_type = #{bean.folderType},
+            </if>
+            <if test="bean.recoveryTime!=null">
+                recovery_time = #{bean.recoveryTime},
+            </if>
+            <if test="bean.delFlag!=null">
+                del_flag = #{bean.delFlag},
+            </if>
+        </set>
+        where user_id = #{userId}
+        <if test="filePidList!=null">
+            and file_pid in
+            <foreach collection="filePidList" item="item" separator="," open="(" close=")">#{item}</foreach>
+        </if>
+        <if test="fileIdList!=null">
+            and file_id in
+            <foreach collection="fileIdList" item="item" separator="," open="(" close=")">#{item}</foreach>
+        </if>
+        <if test="oldDelFlag!=null">
+            and del_flag = #{oldDelFlag}
+        </if>
+    </update>
+    <select id="getUseSpaceByUserId" resultType="java.lang.Long">
+        select IFNULL(sum(file_size), 0)
+        from file_info
+        where user_id = #{userId}
+          and del_flag = 2
+    </select>
+    <select id="selectSameNameFile" resultType="com.zhang.mypan.entity.FileInfo">
+        SELECT file_pid, file_name,file_path
+        FROM file_info
+        WHERE file_id IN
+        <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+        AND user_id = #{userId}
+        AND del_flag != #{excludeDelFlag}
+        GROUP BY file_pid, file_name,file_path
+        HAVING COUNT(*) > 1
+    </select>
+    <select id="getDelFileTotalSize" resultType="java.lang.Long">
+        SELECT SUM(file_size)
+        FROM file_info
+        WHERE file_id IN
+        <foreach collection="delFileIds" item="fileId" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+        AND user_id = #{userId}
+        AND folder_type = 0
+    </select>
+
+    <select id="loadFileList1" resultType="com.zhang.mypan.dto.FileDto">
+        select
+        file_id,user_id,file_md5,
+        file_pid,file_size,file_name,
+        file_cover,file_path,create_time,
+        last_update_time,folder_type,file_category,
+        file_type,status,recovery_time,
+        del_flag
+        from file_info a
+        where del_flag=2
+        <if test="filePid!=null">and file_pid = #{filePid}</if>
+        <if test="fileId!=null">and file_id = #{fileId}</if>
+        and user_id = #{userId}
+        order by last_update_time desc
+    </select>
+    <select id="getAllfilesIdByUserId" resultType="java.lang.String">
+        select file_id
+        from file_info
+        where user_id = #{userId}
+          and del_flag != 0
+    </select>
+    <select id="filterSecondUploadFile" resultType="java.lang.String">
+        select a.file_id
+        from file_info a
+        where
+        not exists(
+        select 1 from file_info b
+        where a.file_md5=b.file_md5
+        and
+        b.file_id not in
+        <foreach collection="delFileList" item="item" separator="," open="(" close=")">#{item}</foreach>
+        )
+        and a.file_id in
+        <foreach collection="delFileList" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+</mapper>
