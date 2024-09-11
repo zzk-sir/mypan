@@ -7,7 +7,7 @@
 * springboot,mysql,mybatis-plus,redis,rabbitmq,ffmpeg
 
 ### 相关环境配置
-* 操作系统 windows系统
+* 操作系统 windows系统[(linux系统兼容)](#linux)
 * JDK 18.0.2
 * MySQL 5.7.44 创建数据库名mypan,然后运行src/main/resource/Mypan1.sql
 * Redis 7.2.4
