@@ -3,6 +3,12 @@
 ### 项目介绍
 本项目为一个简单的springboot网盘项目,支持分片上传和下载,当前为后端服务器代码,前端请到https://github.com/zzk-sir/mypan-
 
+### 项目展示
+http://www.zsir.site:1024
+
+- [ ]  如果遇到问题，请联系我，2098755297@qq.com
+
+
 ### 项目主要技术栈
 * springboot,mysql,mybatis-plus,redis,rabbitmq,ffmpeg
 
