@@ -169,7 +169,7 @@ public class FileShareServiceImpl extends ServiceImpl<FileShareMapper, FileShare
             query.setFilePid(filePid);
         }
         query.setUserId(shareInfoVO.getUserId());
-        query.setPageNo(pageNo - 1);
+        query.setPageNo(pageNo);
         query.setPageSize(pageSize);
         return fileInfoService.loadFileList1(query);
 
