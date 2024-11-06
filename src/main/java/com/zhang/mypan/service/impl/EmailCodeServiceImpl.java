@@ -75,7 +75,7 @@ public class EmailCodeServiceImpl implements EmailCodeService {
                     return Result.fail("已发送至您的邮箱", CodeEnum.CONFILCT);
                 }
                 // 生成随机验证码
-                final String emailcode = getRandomCode();
+                final String emailcode = getRandomCodeAndUnique();
                 // 发送验证码  通过mq异步发送
                 final MSG msg = new MSG(email, emailcode);
                 rabbitTemplate.convertAndSend(msgQueue, msg);
@@ -139,7 +139,17 @@ public class EmailCodeServiceImpl implements EmailCodeService {
     private String getRandomCode() {
         return RandomStringUtils.randomNumeric(SystemConstants.EMAIL_CODE_LEN);
     }
-
+    private String getRandomCodeAndUnique() {
+        String emailCode = getRandomCode();
+        // 取随机唯一
+        int count = RedisConstants.EMAIL_CODE_CHECK_COUNT;
+        while(redisUtil.sHasKey(RedisConstants.EMAIL_CODE_SET,emailCode)&&count-->0){
+            emailCode = getRandomCode();
+        }
+        if(count==0) log.error("邮箱验证码未在指定次数内找到随机唯一值，请检查redis中emailcodeset");
+        redisUtil.sSet(RedisConstants.EMAIL_CODE_SET,emailCode);
+        return emailCode;
+    }
     @Autowired
     public void setJavaMailSender(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;

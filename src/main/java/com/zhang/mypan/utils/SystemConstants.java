@@ -35,4 +35,5 @@ public final class SystemConstants {
     public static final int RANDOM_FILE_ID_LEN = 10; // 随机文件ID长度
 
     public static final String REAL_DEL_FILE_MD5 = "-1"; // 实际文件删除后的md5值
+    public static final Integer VIDEO_CHUNK_SIZE = 10; // 视频分片存储大小（时间段10s）
 }

@@ -31,7 +31,10 @@ public class FileCleanTask {
     @Scheduled(fixedDelay = 1000 * 60 * 3) // 3分钟
     public void execute() {
         System.out.println("定时任务执行");
-        // 先查找
+        // 先查找(回收栈中超时数据)
+        // 原因大多数时间不会进行修改操作
+        // 如果只修改，同时没有查找到，效率会低一点（写操作，要进行锁定（行级锁））
+        // 而查找不会进行锁定，效率就搞一点
         final boolean exists = fileInfoService.lambdaQuery()
                 .eq(FileInfo::getDelFlag, FileDelFlagEnums.RECYCLE.getFlag())
                 .le(FileInfo::getRecoveryTime, LocalDateTime.now().minusDays(10)).exists();
@@ -39,7 +42,7 @@ public class FileCleanTask {
             log.info("回收站没有要处理的文件");
             return;
         }
-        // 再删除文件
+        // 再删除文件（设置数据库标记删除）
         final boolean success = fileInfoService.lambdaUpdate()
                 .set(FileInfo::getDelFlag, FileDelFlagEnums.DEL.getFlag())
                 .eq(FileInfo::getDelFlag, FileDelFlagEnums.RECYCLE.getFlag())

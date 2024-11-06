@@ -925,7 +925,7 @@ public class FileInfoServiceImpl extends ServiceImpl<FileInfoMapper, FileInfo>
         }
         // ffmpeg命令(先转为TS，再切割)
         final String CMD_TRANSFER_2TS = "ffmpeg -y -i %s -vcodec copy -acodec copy -vbsf h264_mp4toannexb %s";
-        final String CMD_CUT_TS = "ffmpeg -i %s -c copy -map 0 -f segment -segment_list %s -segment_time 30 %s/%s_%%4d.ts";
+        final String CMD_CUT_TS = "ffmpeg -i %s -c copy -map 0 -f segment -segment_list %s -segment_time "+SystemConstants.VIDEO_CHUNK_SIZE+" %s/%s_%%4d.ts";
 
         String tsPath = tsFolder + File.separator + SystemConstants.TS_NAME;
         // 生成.ts

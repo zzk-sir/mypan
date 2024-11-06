@@ -592,7 +592,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             // 邮箱验证码错误
             return Result.fail("邮箱验证码错误", CodeEnum.BAD_REQUEST);
         }
+        // 检验成功
+        delEmailCode(emailCode,email);
+
         return null;
+    }
+
+    private void delEmailCode(String emailCode, String email) {
+        final String emailCodeKey = RedisConstants.EMAIL_CODE_KEY + email;
+        final String emailCodeSetKey = RedisConstants.EMAIL_CODE_SET;
+        // 删除邮箱验证码
+        redisUtil.del(emailCodeKey);
+        // 删除emailset中的值
+        redisUtil.setRemove(emailCodeSetKey,emailCode);
     }
 
     @Autowired

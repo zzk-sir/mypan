@@ -18,7 +18,8 @@ public final class RedisConstants {
     public static final String DOWNLOAD_CODE_KEY = "mypan:downloadcode:"; // 下载码前缀
     public static final long DOWNLOAD_CODE_EXPIRE_TIME = 5 * 60; // 下载码的有效时间 5 分钟
     public static final String DOWNLOAD_FILEID_MAP = "mypan:download:"; // 下载码映射 防止同时请求，redis添加多个占用内存
-    public static final String SYS_SETTING_KEY = "mypan:syssetting:"; //系统设置
-
+    public static final String SYS_SETTING_KEY = "mypan:syssetting"; //系统设置
+    public static final String EMAIL_CODE_SET = "mypan:emailcodeset"; //保存已经存在的验证码防止重复
+    public static final int EMAIL_CODE_CHECK_COUNT = 5; // 最大循环次数（生成唯一随机邮箱验证码）
     public static final String SHARE_CODE_KEY = "mypan:sharecode:"; // 分享文件信息
 }

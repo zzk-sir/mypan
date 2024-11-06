@@ -44,3 +44,6 @@ http://www.zsir.site:1024
   ffmpeg -version
   ffprobe -version
   ```
+### bug 修复
+* 修复了分享数据获取错误
+* 优化邮箱验证码生成

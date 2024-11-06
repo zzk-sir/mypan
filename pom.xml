@@ -196,6 +196,12 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
+<!--        文件压缩-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.27.1</version>
+        </dependency>
 
 <!--        补丁-->
         <dependency>
