@@ -1,9 +1,6 @@
 package com.zhang.mypan.utils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -81,7 +78,7 @@ public final class RedisUtil {
             if (key.length == 1) {
                 redisTemplate.delete(key[0]);
             } else {
-                redisTemplate.delete(String.valueOf(CollectionUtils.arrayToList(key)));
+                redisTemplate.delete((Collection<String>) CollectionUtils.arrayToList(key));
             }
         }
     }

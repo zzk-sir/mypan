@@ -83,6 +83,8 @@ public class EmailCodeServiceImpl implements EmailCodeService {
                 log.info("邮件验证码为:{}", emailcode);
                 // 存入redis
                 redisUtil.set(key, emailcode, RedisConstants.EMAIL_CODE_TTL);
+                // 同时保存验证码标识
+                redisUtil.set(RedisConstants.EMAIL_CODE_SET+emailcode,"",RedisConstants.EMAIL_CODE_TTL);
             }
         } catch (Exception e) {
             log.error("发送失败", e);
@@ -143,11 +145,12 @@ public class EmailCodeServiceImpl implements EmailCodeService {
         String emailCode = getRandomCode();
         // 取随机唯一
         int count = RedisConstants.EMAIL_CODE_CHECK_COUNT;
-        while(redisUtil.sHasKey(RedisConstants.EMAIL_CODE_SET,emailCode)&&count-->0){
+        while(!Objects.isNull(redisUtil.get(RedisConstants.EMAIL_CODE_SET+emailCode))&&count-->0){
             emailCode = getRandomCode();
         }
         if(count==0) log.error("邮箱验证码未在指定次数内找到随机唯一值，请检查redis中emailcodeset");
-        redisUtil.sSet(RedisConstants.EMAIL_CODE_SET,emailCode);
+        // 直接存 一个key 表示已存在
+        // 这里不使用set结构存储，因为set无过期时间，如果验证码过期，set中的数据不及时处理将永远存储，浪费内存
         return emailCode;
     }
     @Autowired
